@@ -173,7 +173,11 @@ impl codec::Decode for TransactionSignature {
 	feature = "with-codec",
 	derive(codec::Encode, codec::Decode, scale_info::TypeInfo)
 )]
-#[cfg_attr(feature = "with-serde", derive(serde::Serialize, serde::Deserialize), serde(rename_all = "camelCase"))]
+#[cfg_attr(
+	feature = "with-serde",
+	derive(serde::Serialize, serde::Deserialize),
+	serde(rename_all = "camelCase")
+)]
 pub struct AccessListItem {
 	pub address: Address,
 	pub storage_keys: Vec<H256>,
@@ -643,10 +647,7 @@ impl Decodable for TransactionV1 {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-#[cfg_attr(
-	feature = "with-codec",
-	derive(codec::Encode, scale_info::TypeInfo)
-)]
+#[cfg_attr(feature = "with-codec", derive(codec::Encode, scale_info::TypeInfo))]
 #[cfg_attr(feature = "with-serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum TransactionV2 {
 	/// Legacy transaction type
@@ -657,7 +658,6 @@ pub enum TransactionV2 {
 	EIP1559(EIP1559Transaction),
 }
 
-
 #[cfg(feature = "with-codec")]
 // We need to implement Decode manually in order for the `LegacyTransaction` type (without enum)
 // to be decoded correctly
@@ -667,7 +667,9 @@ impl codec::Decode for TransactionV2 {
 			Ok(TransactionV2Like::Legacy(tx)) => Ok(TransactionV2::Legacy(tx)),
 			Ok(TransactionV2Like::EIP2930(tx)) => Ok(TransactionV2::EIP2930(tx)),
 			Ok(TransactionV2Like::EIP1559(tx)) => Ok(TransactionV2::EIP1559(tx)),
-			Err(_) => Ok(TransactionV2::Legacy(<LegacyTransaction as codec::Decode>::decode(input)?)),
+			Err(_) => Ok(TransactionV2::Legacy(
+				<LegacyTransaction as codec::Decode>::decode(input)?,
+			)),
 		}
 	}
 }
